@@ -10,7 +10,7 @@ void main() {
     checkInterval: Duration(seconds: 1),
   );
   internetChekerPlus.onStatusChange.listen(
-    (bool status) {
+    (ConnectionStatus status) {
       print('Status: $status');
     },
   );
