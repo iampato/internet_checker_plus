@@ -6,10 +6,10 @@ import 'package:internet_checker_plus/internet_checker_plus.dart';
 class InternetCheckerPlus {
   final CheckerOptions checkerOptions;
   final Duration checkInterval;
-  bool? _lastStatus;
+  ConnectionStatus? _lastStatus;
   Timer? _timerHandle;
-  final StreamController<bool> _statusController =
-      StreamController<bool>.broadcast();
+  final StreamController<ConnectionStatus> _statusController =
+      StreamController<ConnectionStatus>.broadcast();
 
   InternetCheckerPlus({
     required this.checkerOptions,
@@ -32,7 +32,7 @@ class InternetCheckerPlus {
     _timerHandle?.cancel();
     timer?.cancel();
 
-    final bool currentStatus = await _hasConnection;
+    final ConnectionStatus currentStatus = await _hasConnection;
 
     // only send status update if last status differs from current
     // and if someone is actually listening
@@ -90,24 +90,26 @@ class InternetCheckerPlus {
   /// If at least one of the addresses is reachable
   /// we assume an internet connection is available and return `true`.
   /// `false` otherwise.
-  Future<bool> get _hasConnection async {
+  Future<ConnectionStatus> get _hasConnection async {
     final statusCode = await _isHostReachable(
       checkerOptions,
     );
     if (statusCode != null) {
-      return statusCode == 200;
+      return statusCode == 200
+          ? ConnectionStatus.connected
+          : ConnectionStatus.disconnected;
     } else {
-      return false;
+      return ConnectionStatus.disconnected;
     }
   }
 
-  Stream<bool> get onStatusChange => _statusController.stream;
+  Stream<ConnectionStatus> get onStatusChange => _statusController.stream;
 
   bool get hasListeners => _statusController.hasListener;
 
   bool get isActivelyChecking => _statusController.hasListener;
 
-  bool? get lastStatus => _lastStatus;
+  ConnectionStatus? get lastStatus => _lastStatus;
   void close() {
     _statusController.close();
   }
