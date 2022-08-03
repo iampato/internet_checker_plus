@@ -6,7 +6,7 @@ import 'package:internet_checker_plus/internet_checker_plus.dart';
 class InternetCheckerPlus {
   final CheckerOptions checkerOptions;
   final Duration checkInterval;
-  Duration timeout ;
+
   ConnectionStatus? _lastStatus;
   Timer? _timerHandle;
   final StreamController<ConnectionStatus> _statusController =
@@ -15,7 +15,6 @@ class InternetCheckerPlus {
   InternetCheckerPlus({
     required this.checkerOptions,
     required this.checkInterval,
-    this.timeout = const Duration(seconds: 2),
   }) {
     _statusController.onListen = () {
       _maybeEmitStatusUpdate();
@@ -81,7 +80,7 @@ class InternetCheckerPlus {
         HttpHeaders.contentTypeHeader,
         "application/json; charset=UTF-8",
       );
-      final response = await request.close().timeout(timeout);
+      final response = await request.close().timeout(options.timeout);
       return response.statusCode;
     } catch (e) {
       return null;
